@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple JSON Message Sender</title>
+</head>
+<body>
+    <h1>JSON Message Sender</h1>
+    <label for="message">Enter your message:</label>
+    <input type="text" id="message" />
+    <button onclick="sendMessage()">Send</button>
+
+    <h2>Received Messages:</h2>
+    <ul id="messages"></ul>
+
+    <script>
+        function sendMessage() {
+            const message = document.getElementById("message").value;
+
+            if (message.trim() === "") {
+                alert("Please enter a message.");
+                return;
+            }
+
+            fetch("http://localhost:8080/send", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ "message": message }),
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    document.getElementById("message").value = "";
+                    alert("Message sent successfully!");
+                } else {
+                    alert("Failed to send message: " + data.message);
+                }
+            })
+            .catch((error) => {
+                alert("An error occurred while sending the message: " + error.message);
+            });
+        }
+
+        function fetchMessages() {
+            fetch("http://localhost:8080/receive")
+            .then((response) => response.json())
+            .then((data) => {
+                const messagesList = document.getElementById("messages");
+                messagesList.innerHTML = "";
+
+                if (data.length > 0) {
+                    data.forEach((message) => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = message.message;
+                        messagesList.appendChild(listItem);
+                    });
+                } else {
+                    const listItem = document.createElement("li");
+                    listItem.textContent = "No messages received yet.";
+                    messagesList.appendChild(listItem);
+                }
+            })
+            .catch((error) => {
+                console.error("Error fetching messages:", error);
+            });
+        }
+
+        // Fetch messages initially and then every 5 seconds
+        fetchMessages();
+        setInterval(fetchMessages, 5000);
+    </script>
+</body>
+</html>
