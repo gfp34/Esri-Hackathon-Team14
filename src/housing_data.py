@@ -1,4 +1,7 @@
 import arcpy
+import os
+
+from service_area import ServiceArea
 
 MEMORY_PUBLIC_LAYER_FILTER = r"memory\public_layer_filter"
 MEMORY_AFFORDABLE_LAYER_FILTER = r"memory\affordable_layer_filter"
@@ -16,6 +19,8 @@ class HousingData:
             "memory",
             "AffordableHousing" 
         ))
+
+        self.service_area = ServiceArea()
 
         self.public_active = public_active
         self.affordable_active = affordable_active
@@ -84,3 +89,21 @@ class HousingData:
 
             self.affordable_layer_filter = MEMORY_AFFORDABLE_LAYER_FILTER
             arcpy.management.CopyFeatures(affordable_cluster_results, self.affordable_layer_filter)  
+    
+    # Filter to get all housing locations that are within proximity of the given filter
+    def sidebar_filter(self, dataset, travel_mode, cutoff_list):
+        self.service_area.set_properties(travel_mode, cutoff_list)
+
+        gdb_path = r"C:\Users\gre13341\Documents\Hackathon\data\hackathon_sidebar.gdb"
+        dataset_path = os.path.join(gdb_path, dataset)
+
+        # Compute housing intersections
+        if self.public_active:
+            public_intersection = self.service_area.compute_intersection(self.public_layer_filter, dataset_path)
+            arcpy.management.CopyFeatures(public_intersection, self.public_layer_filter)
+            
+        if self.affordable_active:
+            affordable_intersection = self.service_area.compute_intersection(self.affordable_layer_filter, dataset_path)
+            arcpy.management.CopyFeatures(affordable_intersection, self.affordable_layer_filter)
+
+
