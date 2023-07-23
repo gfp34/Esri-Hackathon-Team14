@@ -1,2 +1,3 @@
 *.gdb
 password.txt
+__pycache__
