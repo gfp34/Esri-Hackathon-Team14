@@ -2,9 +2,9 @@ require(["esri/config",
  "esri/WebMap", 
  "esri/views/MapView", 
  "esri/widgets/Search",
- "esri/widgets/ScaleBar", 
+ "esri/widgets/LayerList",
  "esri/widgets/Legend"],
- function(esriConfig, WebMap, MapView, Search, ScaleBar, Legend) {
+ function(esriConfig, WebMap, MapView, Search, LayerList) {
   
   esriConfig.apiKey = "AAPK213e574c6f914df48c957612cb5a80d2BdiE6IixjuztBRUskTn8Ks31dp_WWCqkL1TBs_6HBIwzXgcVXgofZaCot7_tys4q";
   let myJSON = {workAddr1: "", workAddr2: ""}
@@ -14,10 +14,6 @@ require(["esri/config",
           id: "65d6edb51a034bbc975bd9b1a10e221f"
       }
   });
-  console.log("Layers: ", webmap.layers)
-  /*const map = new Map({
-    basemap: "arcgis-topographic" // Basemap layer
-  });*/
 
   const view = new MapView({
       map: webmap,
@@ -47,6 +43,16 @@ require(["esri/config",
     console.log("The selected search result: ", event.result.name);
     myJSON.workAddr1 = event.result.name;
     console.log(JSON.stringify(myJSON));
+  });
+
+  
+  view.when(() => {
+    const layerList = new LayerList({
+      view: view
+    });
+
+    // Add widget to the top right corner of the view
+    view.ui.add(layerList, "bottom-right");
   });
 
   
