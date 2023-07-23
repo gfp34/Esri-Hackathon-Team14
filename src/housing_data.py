@@ -1,5 +1,8 @@
 import arcpy
 
+MEMORY_PUBLIC_LAYER_FILTER = r"memory\public_layer_filter"
+MEMORY_AFFORDABLE_LAYER_FILTER = r"memory\affordable_layer_filter"
+
 class HousingData:
     def __init__(self, public_active=True, affordable_active=True):
         # Load Public and Affordable points into memory
@@ -16,6 +19,16 @@ class HousingData:
 
         self.public_active = public_active
         self.affordable_active = affordable_active
+
+        if self.public_active:
+            self.public_layer_filter = self.public_layer
+        else:
+            self.public_layer_filter = None
+        
+        if self.affordable_active:
+            self.affordable_layer_filter = self.affordable_layer
+        else:
+            self.affordable_layer_filter = None
     
     # def filter_by_neighborhood(self, neighborhood):
     #     neighborhood_layer = str(arcpy.management.SelectLayerByAttribute(
@@ -44,7 +57,6 @@ class HousingData:
             invert_where_clause=None
         ))
 
-        public_cluster_layer = None
         if self.public_active:
             # Find public locations in the neighborhood
             public_cluster_results = arcpy.management.SelectLayerByLocation(
@@ -56,10 +68,9 @@ class HousingData:
                 invert_spatial_relationship="NOT_INVERT"
             )
 
-            public_cluster_layer = fr"memory\{cluster}"
-            arcpy.management.CopyFeatures(public_cluster_results, public_cluster_layer)          
+            self.public_layer_filter = MEMORY_PUBLIC_LAYER_FILTER
+            arcpy.management.CopyFeatures(public_cluster_results, self.public_layer_filter)          
 
-        affordable_cluster_layer = None
         if self.affordable_active:
             # Find affordable locations in the neighborhood
             affordable_cluster_results = arcpy.management.SelectLayerByLocation(
@@ -71,7 +82,5 @@ class HousingData:
                 invert_spatial_relationship="NOT_INVERT"
             )
 
-            affordable_cluster_layer = fr"memory\{cluster}"
-            arcpy.management.CopyFeatures(affordable_cluster_results, affordable_cluster_layer)  
-        
-        return public_cluster_layer, affordable_cluster_layer
+            self.affordable_layer_filter = MEMORY_AFFORDABLE_LAYER_FILTER
+            arcpy.management.CopyFeatures(affordable_cluster_results, self.affordable_layer_filter)  
