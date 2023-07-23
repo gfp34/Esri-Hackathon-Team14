@@ -108,4 +108,19 @@ class HousingData:
             affordable_intersection = self.service_area.compute_intersection(self.affordable_layer_filter, dataset_path)
             arcpy.management.CopyFeatures(affordable_intersection, self.affordable_layer_filter)
 
+    def reset_filters(self): 
+        if self.public_active:
+            self.public_layer_filter = self.public_layer
+            self.public_layer = str(arcpy.conversion.FeatureClassToFeatureClass(
+                r"C:\Users\gre13341\Documents\Hackathon\data\hackathon_housing.gdb\PublicHousing_Points", 
+                "memory",
+                "public_layer_filter" 
+            ))
 
+        if self.affordable_active:  
+            self.affordable_layer_filter = self.affordable_layer
+            self.affordable_layer = str(arcpy.conversion.FeatureClassToFeatureClass(
+                r"C:\Users\gre13341\Documents\Hackathon\data\hackathon_housing.gdb\Affordable_Housing", 
+                "memory",
+                "affordable_layer_filter" 
+            ))
