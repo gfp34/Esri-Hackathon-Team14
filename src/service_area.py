@@ -1,8 +1,10 @@
 import arcpy
-
+import uuid
 
 class ServiceArea:
     def __init__(self):
+        arcpy.env.overwriteOutput = True
+
         #TODO: Change this path depending on user running the backend
         nd_path = r"C:\Users\gre13341\Documents\Hackathon\NorthAmerica\NorthAmerica.gdb\Routing\Routing_ND"
         self.nd_layer_name = "NorthAmerica"
@@ -57,8 +59,9 @@ class ServiceArea:
         polygon_result = self.service_area.solve()
 
         # Export the result to a feature class if the solve was successful
+        sa_polygon_layer = r"memory\tmp_sa_polygon"
         if polygon_result.solveSucceeded:
-            polygon_result.export(arcpy.nax.ServiceAreaOutputDataType.Polygons, r"memory\sa_polygon") # TODO: This needs a different name
+            polygon_result.export(arcpy.nax.ServiceAreaOutputDataType.Polygons, sa_polygon_layer)
         else:
             raise RuntimeError("Service Area solve failed")
         
@@ -66,7 +69,7 @@ class ServiceArea:
         intesection_results = arcpy.management.SelectLayerByLocation(
             in_layer=compare_layer,
             overlap_type="INTERSECT",
-            select_features=r"memory\sa_polygon",
+            select_features=sa_polygon_layer,
             search_distance=None,
             selection_type="NEW_SELECTION",
             invert_spatial_relationship="NOT_INVERT"
@@ -75,7 +78,8 @@ class ServiceArea:
         # if intersections_results.status != 4:
         #     raise RuntimeError("Intersection calculation failed")
 
-        # Copy the intersection result to a new feature layer
-        intersection_layer = r"memory\interseciton" # TODO: This needs a different name
+        # Copy the intersection result to a new feature layer in memory with a random name
+        intersection_layer = r"memory\interseciton_" + uuid.uuid4().hex
         arcpy.management.CopyFeatures(intesection_results, intersection_layer)
+
         return intersection_layer
