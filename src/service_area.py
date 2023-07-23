@@ -1,33 +1,21 @@
 import arcpy
 
 
-# class ServiceAreaArgs:
-#     def __init__(self, travel_mode: str, cutoff_list: list):
-#         if travel_mode != "walking" and travel_mode != "driving":
-#             raise ValueError("Invalid travel_mode")
-#         self.travel_mode = travel_mode
-#         if not isinstance(cutoff_list, list):
-#             for val in cutoff_list:
-#                 if not isinstance(val, int) or val < 0:
-#                     raise ValueError("Invalid cutoff_list")
-#         self.cutoff_list = cutoff_list
-
-
 class ServiceArea:
     def __init__(self):
-        # TODO: replace with local calls to North American gdb
-        with open("password.txt", 'r') as pw_file:
-            pw = pw_file.read()
+        #TODO: Change this path depending on user running the backend
+        nd_path = r"C:\Users\gre13341\Documents\Hackathon\NorthAmerica\NorthAmerica.gdb\Routing\Routing_ND"
+        self.nd_layer_name = "NorthAmerica"
 
-        arcpy.SignInToPortal("https://www.arcgis.com/", "gpaiement_intern_hackathon", pw)
+        # Create a network dataset layer. The layer will be referenced using its name.
+        arcpy.nax.MakeNetworkDatasetLayer(nd_path, self.nd_layer_name)
 
         # Instantiate a ServiceArea analysis object.
-        self.service_area = arcpy.nax.ServiceArea("https://www.arcgis.com/")
+        self.service_area = arcpy.nax.ServiceArea(self.nd_layer_name)
 
     def set_properties(self, travel_mode, cutoff_list):
         # Get the desired travel mode for the analysis.
-        nd_layer_name = "https://www.arcgis.com/"
-        nd_travel_modes = arcpy.nax.GetTravelModes(nd_layer_name)
+        nd_travel_modes = arcpy.nax.GetTravelModes(self.nd_layer_name)
         if travel_mode == "walking":
             travel_mode = nd_travel_modes["Walking Time"]
         elif travel_mode == "driving":
