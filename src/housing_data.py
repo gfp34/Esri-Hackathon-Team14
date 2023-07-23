@@ -8,6 +8,8 @@ MEMORY_AFFORDABLE_LAYER_FILTER = r"memory\affordable_layer_filter"
 
 class HousingData:
     def __init__(self, public_active=True, affordable_active=True):
+        arcpy.env.overwriteOutput = True
+
         # Load Public and Affordable points into memory
         self.public_layer = str(arcpy.conversion.FeatureClassToFeatureClass(
             r"C:\Users\gre13341\Documents\Hackathon\data\hackathon_housing.gdb\PublicHousing_Points", 
